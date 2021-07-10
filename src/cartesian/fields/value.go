@@ -8,14 +8,14 @@ import (
 
 type (
 	Value struct {
-		field   *field
+		field *Field
 		value abstract.ValuePtr
 	}
 	Values         []*Value
 	ValuesByEntity []Values
 )
 
-func NewFieldValue(t *field, v abstract.ValuePtr) *Value {
+func NewFieldValue(t *Field, v abstract.ValuePtr) *Value {
 	return &Value{field: t, value: v}
 }
 

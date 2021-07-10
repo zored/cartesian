@@ -1,6 +1,7 @@
 package abstract
 
 type (
+	// Entity is pointer to result value.
 	Entity   interface{}
 	Entities []Entity
 )

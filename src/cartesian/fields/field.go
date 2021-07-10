@@ -3,31 +3,47 @@ package fields
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
 	"github.com/zored/cartesian/src/cartesian/generator"
-	"reflect"
 )
 
 type (
-	field struct {
+	Field struct {
 		Name      string
 		Generator generator.Generator
 		Values    abstract.Values
 	}
-	Fields []*field
+	Fields []*Field
 )
 
-func NewValued(name string, values ...abstract.Value) *field {
-	return &field{Name: name, Values: abstract.ToValues(values)}
+func (f Field) MaterializeValues() {
+	if f.Values != nil {
+		return
+	}
+	if g := f.Generator; g != nil {
+		f.Values = generateValues(g)
+	}
 }
 
-func NewGenerated(name string, generator generator.Generator) *field {
-	return &field{Name: name, Generator: generator}
+func (f Fields) MaterializeValues() {
+	for _, t := range f {
+		t.MaterializeValues()
+	}
 }
 
-func NewFields(fields ...*field) Fields {
+func NewValued(name string, values ...abstract.Value) *Field {
+	return &Field{Name: name, Values: abstract.ToValues(values)}
+}
+
+func NewGenerated(name string, generator generator.Generator) *Field {
+	return &Field{Name: name, Generator: generator}
+}
+
+func NewFields(fields ...*Field) Fields {
 	return fields
 }
 
-func (t field) Apply(field reflect.Value) bool {
-	reflect.Indirect(field).Set(t.Generator.Next())
-	return t.Generator.Done()
+func generateValues(g generator.Generator) (r abstract.Values) {
+	for !g.Done() {
+		r = append(r, g.Next())
+	}
+	return r
 }

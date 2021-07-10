@@ -3,7 +3,6 @@ package cartesian
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
 	"github.com/zored/cartesian/src/cartesian/fields"
-	"github.com/zored/cartesian/src/cartesian/generator"
 	"reflect"
 )
 
@@ -11,7 +10,7 @@ import (
 type Entity interface{}
 
 func Generate(c *Config) (r abstract.Entities, err error) {
-	fillFieldsValues(c.Fields)
+	c.Fields.MaterializeValues()
 	for _, values := range getValuesByEntity(c.Fields) {
 		e, err := createEntity(c.EntityTemplate, values)
 		if err != nil {
@@ -62,19 +61,4 @@ func getValuesByEntity(fs fields.Fields) (r fields.ValuesByEntity) {
 			valueIndices[fieldI] = 0
 		}
 	}
-}
-
-func fillFieldsValues(fields fields.Fields) {
-	for _, t := range fields {
-		if g := t.Generator; g != nil {
-			t.Values = generateValues(g)
-		}
-	}
-}
-
-func generateValues(g generator.Generator) (r abstract.Values) {
-	for !g.Done() {
-		r = append(r, g.Next())
-	}
-	return r
 }
