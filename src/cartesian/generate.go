@@ -2,8 +2,8 @@ package cartesian
 
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
+	"github.com/zored/cartesian/src/cartesian/fields"
 	"github.com/zored/cartesian/src/cartesian/generator"
-	"github.com/zored/cartesian/src/cartesian/tag"
 	"reflect"
 )
 
@@ -11,8 +11,8 @@ import (
 type Entity interface{}
 
 func Generate(c *Config) (r abstract.Entities, err error) {
-	fillTagsValues(c.Tags)
-	for _, values := range getValuesByEntity(c.Tags) {
+	fillFieldsValues(c.Fields)
+	for _, values := range getValuesByEntity(c.Fields) {
 		e, err := createEntity(c.EntityTemplate, values)
 		if err != nil {
 			return nil, err
@@ -22,7 +22,7 @@ func Generate(c *Config) (r abstract.Entities, err error) {
 	return r, err
 }
 
-func createEntity(tmpl EntityTemplate, values tag.Values) (Entity, error) {
+func createEntity(tmpl EntityTemplate, values fields.Values) (Entity, error) {
 	entity := reflect.New(reflect.TypeOf(tmpl).Elem())
 	if err := values.Apply(entity); err != nil {
 		return nil, err
@@ -30,43 +30,42 @@ func createEntity(tmpl EntityTemplate, values tag.Values) (Entity, error) {
 	return entity.Interface(), nil
 }
 
-func getValuesByEntity(tags tag.Tags) (r tag.ValuesByEntity) {
-	type intByTagIndex map[int]int
-	lens := intByTagIndex{}
-	valueIndices := intByTagIndex{}
-
-	for i, t := range tags {
+func getValuesByEntity(fs fields.Fields) (r fields.ValuesByEntity) {
+	type intByFieldIndex map[int]int
+	lens := intByFieldIndex{}
+	valueIndices := intByFieldIndex{}
+	for i, t := range fs {
 		lens[i] = len(t.Values)
 		valueIndices[i] = 0
 	}
 
 	for {
 		// Create entity values:
-		lenTags := len(tags)
-		lastTagI := lenTags - 1
-		v := tag.Values{}
-		for tagI := 0; tagI < lenTags; tagI++ {
-			t := tags[tagI]
-			v = append(v, tag.NewTagValue(t, &t.Values[valueIndices[tagI]]))
+		lenFields := len(fs)
+		lastFieldI := lenFields - 1
+		v := fields.Values{}
+		for fieldI := 0; fieldI < lenFields; fieldI++ {
+			t := fs[fieldI]
+			v = append(v, fields.NewFieldValue(t, &t.Values[valueIndices[fieldI]]))
 		}
 		r = append(r, v)
 
 		// Increment index:
-		for tagI := 0; tagI < lenTags; tagI++ {
-			valueIndices[tagI]++
-			if valueIndices[tagI] < lens[tagI] {
+		for fieldI := 0; fieldI < lenFields; fieldI++ {
+			valueIndices[fieldI]++
+			if valueIndices[fieldI] < lens[fieldI] {
 				break
 			}
-			if tagI == lastTagI {
+			if fieldI == lastFieldI {
 				return r
 			}
-			valueIndices[tagI] = 0
+			valueIndices[fieldI] = 0
 		}
 	}
 }
 
-func fillTagsValues(tags tag.Tags) {
-	for _, t := range tags {
+func fillFieldsValues(fields fields.Fields) {
+	for _, t := range fields {
 		if g := t.Generator; g != nil {
 			t.Values = generateValues(g)
 		}

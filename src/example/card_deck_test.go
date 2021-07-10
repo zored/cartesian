@@ -4,8 +4,8 @@ import (
 	"fmt"
 	. "github.com/zored/cartesian/src/cartesian"
 	"github.com/zored/cartesian/src/cartesian/abstract"
+	"github.com/zored/cartesian/src/cartesian/fields"
 	"github.com/zored/cartesian/src/cartesian/generator"
-	"github.com/zored/cartesian/src/cartesian/tag"
 )
 
 type Card struct {
@@ -22,12 +22,13 @@ func ExampleGenerate() {
 	cards := Cards{}
 	r, err := Generate(&Config{
 		EntityTemplate: (*Card)(nil),
-		Tags: tag.NewTags(
-			tag.NewGenerated(
+		Fields: fields.NewFields(
+			// You can generate:
+			fields.NewGenerated(
 				"Rank",
 				generator.NewSet("A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"),
 			),
-			tag.NewValued("Suit", "diamonds", "clubs", "hearts", "spades"),
+			fields.NewValued("Suit", "diamonds", "clubs", "hearts", "spades"),
 		),
 	})
 	if err != nil {

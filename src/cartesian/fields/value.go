@@ -1,4 +1,4 @@
-package tag
+package fields
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 
 type (
 	Value struct {
-		tag   *Tag
+		field   *field
 		value abstract.ValuePtr
 	}
 	Values         []*Value
 	ValuesByEntity []Values
 )
 
-func NewTagValue(t *Tag, v abstract.ValuePtr) *Value {
-	return &Value{tag: t, value: v}
+func NewFieldValue(t *field, v abstract.ValuePtr) *Value {
+	return &Value{field: t, value: v}
 }
 
 func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
@@ -26,26 +26,26 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 	for i := 0; i < typeOfEntity.NumField(); i++ {
 		fieldIndices[typeOfEntity.Field(i).Name] = i
 	}
-	for _, tagValue := range v {
-		fieldName := tagValue.tag.Name
+	for _, fieldValue := range v {
+		fieldName := fieldValue.field.Name
 		fieldI, ok := fieldIndices[fieldName]
 		if !ok {
 			return fmt.Errorf(`can't find field %s`, prettyFieldName(typeOfEntity, fieldName))
 		}
 		field := valueOfEntity.Field(fieldI)
 
-		var valueOfTagValue reflect.Value
-		switch v := (*tagValue.value).(type) {
+		var valueOfFieldValue reflect.Value
+		switch v := (*fieldValue.value).(type) {
 		case reflect.Value:
-			valueOfTagValue = v
+			valueOfFieldValue = v
 		default:
-			valueOfTagValue = reflect.ValueOf(v)
+			valueOfFieldValue = reflect.ValueOf(v)
 		}
 
 		if !field.CanSet() {
 			return fmt.Errorf(`can't update field %s`, prettyFieldName(typeOfEntity, fieldName))
 		}
-		if t := valueOfTagValue.Type(); !field.Type().AssignableTo(t) {
+		if t := valueOfFieldValue.Type(); !field.Type().AssignableTo(t) {
 			return fmt.Errorf(
 				`"%s" is not assignable to to %s (type "%s")`,
 				t.Name(),
@@ -53,7 +53,7 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 				field.Type(),
 			)
 		}
-		field.Set(valueOfTagValue)
+		field.Set(valueOfFieldValue)
 	}
 	return nil
 }
