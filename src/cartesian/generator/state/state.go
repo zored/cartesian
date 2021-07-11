@@ -1,3 +1,3 @@
 package state
 
-type State interface {}
+type State interface{}

@@ -78,7 +78,7 @@ func (s *entity) GetIOs() config.IOs {
 	r := config.IOs{}
 	r = append(r, c.Flatten(false)...)
 	r = append(r, &io{
-		SimpleIO: config.NewSimpleIO(c),
+		SimpleIO:    config.NewSimpleIO(c),
 		generatorId: s.generatorId,
 	})
 	return r

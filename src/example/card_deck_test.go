@@ -65,7 +65,7 @@ func ExampleGenerateCasino() {
 			//}),
 		)
 		lastCroupierId = 0
-		croupiers = entities.Croupiers{}
+		croupiers      = entities.Croupiers{}
 		croupierConfig = &config.Config{
 			EntityTemplate: (*entities.Croupier)(nil),
 			Fields:         croupierFields,
@@ -96,8 +96,8 @@ func ExampleGenerateCasino() {
 				)),
 			),
 		)
-		lastCasinoId   = 0
-		casinoConfig   = &config.Config{
+		lastCasinoId = 0
+		casinoConfig = &config.Config{
 			EntityTemplate: (*entities.Casino)(nil),
 			Fields:         casinoFields,
 			PutIO: func(io config.IO) {
