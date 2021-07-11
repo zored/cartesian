@@ -2,6 +2,12 @@
 set -ex
 
 case $1 in
+  lint) #
+    golangci-lint run
+    ;;
+  fix) #
+    go fmt ./...
+    ;;
   cover) #
     go test ./... -coverprofile=cover.out
     ;;

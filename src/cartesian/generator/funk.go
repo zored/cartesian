@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"github.com/zored/cartesian/src/cartesian/abstract"
 	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/generator/state"
 	"reflect"
@@ -9,7 +8,6 @@ import (
 
 type (
 	funk struct {
-		l abstract.Values
 		f Func
 	}
 	FuncResult struct {
@@ -29,10 +27,7 @@ func (s *funk) State(*configs.Context) state.State {
 }
 
 func (s *funk) Done(st state.State) bool {
-	if st.(*FuncResult).Done {
-		return true
-	}
-	return false
+	return st.(*FuncResult).Done
 }
 
 func (s *funk) Next(st state.State) reflect.Value {

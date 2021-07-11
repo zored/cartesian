@@ -12,7 +12,6 @@ var lastEntityGeneratorId = 0
 type (
 	entity struct {
 		c           *EntityConfig
-		ios         map[int]io
 		generatorId int
 	}
 	io struct {

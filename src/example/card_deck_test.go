@@ -23,7 +23,7 @@ var (
 )
 
 // ExampleGenerateDeck generates 52 cards based on 13 ranks and 4 suits.
-func ExampleGenerateDeck() {
+func ExampleGenerate_deck() {
 	deck := entities.Deck{}
 	r, err := Generate(cardConfig)
 	panicOnErr(err)
@@ -45,7 +45,7 @@ var (
 	}
 )
 
-func ExampleGenerateCroupier() {
+func ExampleGenerate_croupier() {
 	croupiers := entities.Croupiers{}
 	r, err := Generate(croupierConfig)
 	panicOnErr(err)
@@ -56,14 +56,8 @@ func ExampleGenerateCroupier() {
 	// Output: [Bob (Ace of diamonds, King of diamonds, Queen of diamonds, Jack of diamonds, 10 of diamonds, 9 of diamonds, 8 of diamonds, 7 of diamonds, 6 of diamonds, 5 of diamonds, 4 of diamonds, 3 of diamonds, 2 of diamonds, Ace of clubs, King of clubs, Queen of clubs, Jack of clubs, 10 of clubs, 9 of clubs, 8 of clubs, 7 of clubs, 6 of clubs, 5 of clubs, 4 of clubs, 3 of clubs, 2 of clubs, Ace of hearts, King of hearts, Queen of hearts, Jack of hearts, 10 of hearts, 9 of hearts, 8 of hearts, 7 of hearts, 6 of hearts, 5 of hearts, 4 of hearts, 3 of hearts, 2 of hearts, Ace of spades, King of spades, Queen of spades, Jack of spades, 10 of spades, 9 of spades, 8 of spades, 7 of spades, 6 of spades, 5 of spades, 4 of spades, 3 of spades, 2 of spades) Rob (Ace of diamonds, King of diamonds, Queen of diamonds, Jack of diamonds, 10 of diamonds, 9 of diamonds, 8 of diamonds, 7 of diamonds, 6 of diamonds, 5 of diamonds, 4 of diamonds, 3 of diamonds, 2 of diamonds, Ace of clubs, King of clubs, Queen of clubs, Jack of clubs, 10 of clubs, 9 of clubs, 8 of clubs, 7 of clubs, 6 of clubs, 5 of clubs, 4 of clubs, 3 of clubs, 2 of clubs, Ace of hearts, King of hearts, Queen of hearts, Jack of hearts, 10 of hearts, 9 of hearts, 8 of hearts, 7 of hearts, 6 of hearts, 5 of hearts, 4 of hearts, 3 of hearts, 2 of hearts, Ace of spades, King of spades, Queen of spades, Jack of spades, 10 of spades, 9 of spades, 8 of spades, 7 of spades, 6 of spades, 5 of spades, 4 of spades, 3 of spades, 2 of spades)]
 }
 
-func ExampleGenerateCasino() {
+func ExampleGenerate_casino() {
 	var (
-		croupierFields = append(
-			croupierFields,
-			//fields.NewFromParent("CasinoId", 0, func(p abstract.Value) (fieldValue abstract.Value) {
-			//	return p.(*entities.Casino).Id
-			//}),
-		)
 		lastCroupierId = 0
 		croupiers      = entities.Croupiers{}
 		croupierConfig = &configs.Config{

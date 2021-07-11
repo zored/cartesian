@@ -20,9 +20,6 @@ func (c *Config) Flatten(includeSelf bool) IOs {
 	if !includeSelf {
 		return c.Fields.GetIOs()
 	}
-	r := IOs{}
 	io := NewSimpleIO(c)
-	r = c.Fields.GetIOs().WithParentIO(io)
-	r = append(r, io)
-	return r
+	return append(c.Fields.GetIOs().WithParentIO(io), io)
 }
