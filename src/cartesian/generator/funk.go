@@ -17,7 +17,7 @@ type (
 		Value interface{}
 	}
 	FuncResults []*FuncResult
-	Func func() *FuncResult
+	Func        func() *FuncResult
 )
 
 func NewFunc(f Func) *funk {

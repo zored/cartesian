@@ -3,7 +3,7 @@ package configs
 import "github.com/zored/cartesian/src/cartesian/abstract"
 
 type (
-	Fields  interface {
+	Fields interface {
 		GetIOs() IOs
 		CreateEntityValues(*Context) abstract.EntityValues
 		Len() int
