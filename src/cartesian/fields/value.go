@@ -3,20 +3,21 @@ package fields
 import (
 	"fmt"
 	"github.com/zored/cartesian/src/cartesian/abstract"
+	"github.com/zored/cartesian/src/cartesian/config"
 	"reflect"
 )
 
 type (
 	Value struct {
-		field *Field
+		field config.Field
 		value abstract.ValuePtr
 	}
 	Values         []*Value
 	ValuesByEntity []Values
 )
 
-func NewFieldValue(t *Field, v abstract.ValuePtr) *Value {
-	return &Value{field: t, value: v}
+func NewFieldValue(field config.Field, v abstract.ValuePtr) *Value {
+	return &Value{field: field, value: v}
 }
 
 func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
@@ -27,7 +28,7 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 		fieldIndices[typeOfEntity.Field(i).Name] = i
 	}
 	for _, fieldValue := range v {
-		fieldName := fieldValue.field.Name
+		fieldName := fieldValue.field.GetName()
 		fieldI, ok := fieldIndices[fieldName]
 		if !ok {
 			return fmt.Errorf(`can't find field %s`, prettyFieldName(typeOfEntity, fieldName))
@@ -45,12 +46,38 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 		if !field.CanSet() {
 			return fmt.Errorf(`can't update field %s`, prettyFieldName(typeOfEntity, fieldName))
 		}
-		if t := valueOfFieldValue.Type(); !field.Type().AssignableTo(t) {
+
+		typeOfField := field.Type()
+		if valueOfFieldValue.Type().AssignableTo(reflect.TypeOf((abstract.Values)(nil))) {
+			switch typeOfField.Kind() {
+			case reflect.Slice:
+				fallthrough
+			case reflect.Array:
+				a := reflect.New(typeOfField).Elem()
+				typeOfElem := typeOfField.Elem()
+				for i := 0; i < valueOfFieldValue.Len(); i++ {
+					elemToAppend := valueOfFieldValue.Index(i).Elem()
+					if typeOfElem.Kind() == reflect.Ptr && elemToAppend.Kind() != reflect.Ptr {
+						elemToAppend = elemToAppend.Convert(typeOfElem.Elem()).Addr()
+					} else {
+						elemToAppend = elemToAppend.Convert(typeOfElem)
+					}
+					a = reflect.Append(a, elemToAppend)
+				}
+				valueOfFieldValue = a
+			default:
+				return fmt.Errorf(
+					"can't assign list of values to non-list %s",
+					prettyFieldName(typeOfEntity, fieldName),
+				)
+			}
+		}
+		if t := valueOfFieldValue.Type(); !typeOfField.AssignableTo(t) {
 			return fmt.Errorf(
 				`"%s" is not assignable to to %s (type "%s")`,
 				t.Name(),
 				prettyFieldName(typeOfEntity, fieldName),
-				field.Type(),
+				typeOfField,
 			)
 		}
 		field.Set(valueOfFieldValue)
