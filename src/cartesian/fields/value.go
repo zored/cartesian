@@ -3,20 +3,20 @@ package fields
 import (
 	"fmt"
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"reflect"
 )
 
 type (
 	Value struct {
-		field config.Field
+		field configs.Field
 		value abstract.ValuePtr
 	}
 	Values         []*Value
 	ValuesByEntity []Values
 )
 
-func NewFieldValue(field config.Field, v abstract.ValuePtr) *Value {
+func NewFieldValue(field configs.Field, v abstract.ValuePtr) *Value {
 	return &Value{field: field, value: v}
 }
 

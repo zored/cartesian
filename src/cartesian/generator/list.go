@@ -2,7 +2,7 @@ package generator
 
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/generator/state"
 	"reflect"
 )
@@ -15,7 +15,7 @@ func NewList(l ...abstract.Value) *list {
 	return &list{l: abstract.ToValues(l)}
 }
 
-func (s *list) State(*config.Context) state.State {
+func (s *list) State(*configs.Context) state.State {
 	return state.NewValues(s.l)
 }
 
@@ -27,6 +27,6 @@ func (s *list) Next(st state.State) reflect.Value {
 	return state.AsValues(st).Next()
 }
 
-func (s *list) GetIOs() (r config.IOs) {
+func (s *list) GetIOs() (r configs.IOs) {
 	return r
 }

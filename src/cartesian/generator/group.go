@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/generator/state"
 	"reflect"
 )
@@ -12,7 +12,7 @@ type (
 	}
 	doneState struct {
 		done bool
-		ctx  *config.Context
+		ctx  *configs.Context
 	}
 )
 
@@ -22,7 +22,7 @@ func NewGroup(g Generator) Generator {
 	}
 }
 
-func (g *groupper) State(ctx *config.Context) state.State {
+func (g *groupper) State(ctx *configs.Context) state.State {
 	return &doneState{ctx: ctx}
 }
 

@@ -1,6 +1,4 @@
-package config
-
-import "github.com/zored/cartesian/src/cartesian/abstract"
+package configs
 
 type (
 	// EntityTemplate must be a pointer on nil entity.
@@ -11,20 +9,11 @@ type (
 
 		// Fields define how each field must be filled.
 		Fields Fields
-		PutIO  UpdateIO
+
+		// PutIO stores IO after being generated.
+		PutIO UpdateIO
 	}
 	Configs []*Config
-	Fields  interface {
-		GetIOs() IOs
-		CreateEntityValues(*Context) abstract.EntityValues
-		Len() int
-		Index(i int) Field
-	}
-	Field interface {
-		CreateValues(io *Context) abstract.Values
-		GetName() string
-		GetParentValue(abstract.Value) abstract.Value
-	}
 )
 
 func (c *Config) Flatten(includeSelf bool) IOs {

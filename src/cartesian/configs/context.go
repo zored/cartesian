@@ -1,7 +1,11 @@
-package config
+package configs
 
 type Context struct {
 	completeIOs IOs
+}
+
+func NewContext() *Context {
+	return &Context{}
 }
 
 func (c *Context) AddCompleteIO(io IO) {

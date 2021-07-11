@@ -2,7 +2,7 @@ package generator
 
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/generator/state"
 	"reflect"
 )
@@ -16,23 +16,23 @@ type (
 		generatorId int
 	}
 	io struct {
-		*config.SimpleIO
+		*configs.SimpleIO
 		generatorId int
 	}
 	EntityConfig struct {
-		GeneratorConfig *config.Config
+		GeneratorConfig *configs.Config
 		List            bool
 	}
 )
 
-func NewEntityList(c *config.Config) *entity {
+func NewEntityList(c *configs.Config) *entity {
 	return NewEntity(&EntityConfig{
 		GeneratorConfig: c,
 		List:            true,
 	})
 }
 
-func NewEntitySingle(c *config.Config) *entity {
+func NewEntitySingle(c *configs.Config) *entity {
 	return NewEntity(&EntityConfig{
 		GeneratorConfig: c,
 	})
@@ -46,9 +46,9 @@ func NewEntity(c *EntityConfig) *entity {
 	}
 }
 
-func (s *entity) State(ctx *config.Context) (r state.State) {
-	var generatorIO config.IO
-	ctx.EachCompleteIO(func(v config.IO) bool {
+func (s *entity) State(ctx *configs.Context) (r state.State) {
+	var generatorIO configs.IO
+	ctx.EachCompleteIO(func(v configs.IO) bool {
 		if o, ok := v.(*io); ok && o.generatorId == s.generatorId {
 			generatorIO = o
 			return true
@@ -73,12 +73,12 @@ func (s *entity) Next(st state.State) (v reflect.Value) {
 	return state.AsValues(st).Next()
 }
 
-func (s *entity) GetIOs() config.IOs {
+func (s *entity) GetIOs() configs.IOs {
 	c := s.c.GeneratorConfig
-	r := config.IOs{}
+	r := configs.IOs{}
 	r = append(r, c.Flatten(false)...)
 	r = append(r, &io{
-		SimpleIO:    config.NewSimpleIO(c),
+		SimpleIO:    configs.NewSimpleIO(c),
 		generatorId: s.generatorId,
 	})
 	return r

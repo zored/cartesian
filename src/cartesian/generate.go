@@ -2,31 +2,31 @@ package cartesian
 
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/fields"
 	"reflect"
 )
 
-func Generate(c *config.Config) (r abstract.Entities, err error) {
+func Generate(c *configs.Config) (r abstract.Entities, err error) {
 	ios := c.Flatten(true)
-	ctx := &config.Context{}
+	ctx := &configs.Context{}
 	for _, io := range ios {
-		c := io.GetInput()
-		o := io.GetOutput()
-		for _, values := range getValuesByEntity(ctx, c.Fields) {
-			e, err := createEntity(c.EntityTemplate, values)
+		config := io.GetInput()
+		entities := io.GetOutput()
+		for _, values := range getValuesByEntity(ctx, config.Fields) {
+			entity, err := createEntity(config.EntityTemplate, values)
 			if err != nil {
 				return nil, err
 			}
-			o = append(o, e)
+			entities = append(entities, entity)
 		}
-		io.SetOutput(o)
+		io.SetOutput(entities)
 
 		//prevIo := ctx.GetLastCompleteIO()
 
 		ctx.AddCompleteIO(io)
-		if c.PutIO != nil {
-			c.PutIO(io)
+		if config.PutIO != nil {
+			config.PutIO(io)
 		}
 
 		//if prevIo == nil {
@@ -46,7 +46,7 @@ func Generate(c *config.Config) (r abstract.Entities, err error) {
 	return
 }
 
-func createEntity(tmpl config.EntityTemplate, values fields.Values) (abstract.Entity, error) {
+func createEntity(tmpl configs.EntityTemplate, values fields.Values) (abstract.Entity, error) {
 	entity := reflect.New(reflect.TypeOf(tmpl).Elem())
 	if err := values.Apply(entity); err != nil {
 		return nil, err
@@ -54,13 +54,13 @@ func createEntity(tmpl config.EntityTemplate, values fields.Values) (abstract.En
 	return entity.Interface(), nil
 }
 
-func getValuesByEntity(ctx *config.Context, fs config.Fields) (r fields.ValuesByEntity) {
+func getValuesByEntity(ctx *configs.Context, fieldList configs.Fields) (r fields.ValuesByEntity) {
 	type intByFieldIndex map[int]int
 
 	valuesByFieldIndex := map[int]abstract.Values{}
 	lens := intByFieldIndex{}
 	valueIndices := intByFieldIndex{}
-	for i, v := range fs.CreateEntityValues(ctx) {
+	for i, v := range fieldList.CreateEntityValues(ctx) {
 		valuesByFieldIndex[i] = v
 		lens[i] = len(v)
 		valueIndices[i] = 0
@@ -68,11 +68,11 @@ func getValuesByEntity(ctx *config.Context, fs config.Fields) (r fields.ValuesBy
 
 	for {
 		// Create entity values:
-		lenFields := fs.Len()
+		lenFields := fieldList.Len()
 		lastFieldI := lenFields - 1
 		v := fields.Values{}
 		for fieldI := 0; fieldI < lenFields; fieldI++ {
-			f := fs.Index(fieldI)
+			f := fieldList.Index(fieldI)
 			values := valuesByFieldIndex[fieldI]
 			v = append(v, fields.NewFieldValue(f, &values[valueIndices[fieldI]]))
 		}

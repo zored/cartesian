@@ -13,23 +13,11 @@ type (
 	ValuesV       []Value
 )
 
-func ValueAddr(v Value) ValuePtr {
-	if v == nil {
-		return nil
-	}
-	vi := v.(interface{})
-	return &vi
-}
-
 func ToValues(v []Value) (r Values) {
 	for _, o := range v {
 		r = append(r, o)
 	}
 	return
-}
-
-func ListOfOne(v Value) Values {
-	return Values{v}
 }
 
 func (v Values) ValueOfIndex(i int) (r reflect.Value) {

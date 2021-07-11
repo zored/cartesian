@@ -2,7 +2,7 @@ package fields
 
 import (
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/generator"
 	"reflect"
 )
@@ -27,7 +27,7 @@ func (f *Field) GetName() string {
 	return f.Name
 }
 
-func (f *Field) CreateValues(ctx *config.Context) (r abstract.Values) {
+func (f *Field) CreateValues(ctx *configs.Context) (r abstract.Values) {
 	if f.Generator == nil {
 		r = append(r, reflect.ValueOf(f.InitialValue))
 		return r

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	. "github.com/zored/cartesian/src/cartesian"
 	"github.com/zored/cartesian/src/cartesian/abstract"
-	"github.com/zored/cartesian/src/cartesian/config"
+	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/fields"
 	"github.com/zored/cartesian/src/cartesian/generator"
 	"github.com/zored/cartesian/src/example/entities"
@@ -16,7 +16,7 @@ var (
 		fields.NewGenerated("Rank", generator.NewList("Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2")),
 		fields.NewGenerated("Suit", generator.NewList("diamonds", "clubs", "hearts", "spades")),
 	)
-	cardConfig = &config.Config{
+	cardConfig = &configs.Config{
 		EntityTemplate: (*entities.Card)(nil),
 		Fields:         cardFields,
 	}
@@ -39,7 +39,7 @@ var (
 		fields.NewGenerated("Name", generator.NewList("Bob", "Rob")),
 		fields.NewGenerated("Deck", generator.NewEntityList(cardConfig)),
 	)
-	croupierConfig = &config.Config{
+	croupierConfig = &configs.Config{
 		EntityTemplate: (*entities.Croupier)(nil),
 		Fields:         croupierFields,
 	}
@@ -66,10 +66,10 @@ func ExampleGenerateCasino() {
 		)
 		lastCroupierId = 0
 		croupiers      = entities.Croupiers{}
-		croupierConfig = &config.Config{
+		croupierConfig = &configs.Config{
 			EntityTemplate: (*entities.Croupier)(nil),
 			Fields:         croupierFields,
-			PutIO: func(io config.IO) {
+			PutIO: func(io configs.IO) {
 				io.GetOutput().Each(func(e abstract.Entity) {
 					c := e.(*entities.Croupier)
 					if c.Id > 0 {
@@ -97,10 +97,10 @@ func ExampleGenerateCasino() {
 			),
 		)
 		lastCasinoId = 0
-		casinoConfig = &config.Config{
+		casinoConfig = &configs.Config{
 			EntityTemplate: (*entities.Casino)(nil),
 			Fields:         casinoFields,
-			PutIO: func(io config.IO) {
+			PutIO: func(io configs.IO) {
 				io.GetOutput().Each(func(e abstract.Entity) {
 					c := e.(*entities.Casino)
 					if c.Id > 0 {
