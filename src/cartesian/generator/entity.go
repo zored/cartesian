@@ -45,31 +45,36 @@ func NewEntity(c *EntityConfig) *entity {
 	}
 }
 
-func (s *entity) State(ctx *configs.Context) (r state.State) {
-	var generatorIO configs.IO
-	ctx.EachCompleteIO(func(v configs.IO) bool {
-		if o, ok := v.(*io); ok && o.generatorId == s.generatorId {
-			generatorIO = o
+func (s *entity) State(ctx configs.Context) (r state.State, err error) {
+	var factory *configs.TemplateFactory
+	ctx.EachFactory(func(v *configs.TemplateFactory) bool {
+		if o, ok := v.IO.(*io); ok && o.generatorId == s.generatorId {
+			factory = v
 			return true
 		}
 		return false
 	})
-	if generatorIO == nil {
-		panic("no IO found for generator (it must be generated in previous config iteration)")
+	if factory == nil {
+		panic("no factory with IO found for generator (it must be generated in previous config iteration)")
 	}
-	values := generatorIO.GetOutput().AsValues()
+	entities, err := factory.Create(ctx)
+	if err != nil {
+		return nil, err
+	}
+	values := entities.AsValues()
 	if s.c.List {
-		return state.NewValues(abstract.Values{values})
+		return state.NewValues(abstract.Values{values}), err
 	}
-	return state.NewValues(values)
+
+	return state.NewValues(values), err
 }
 
 func (s *entity) Done(st state.State) bool {
 	return state.AsValues(st).Done()
 }
 
-func (s *entity) Next(st state.State) (v reflect.Value) {
-	return state.AsValues(st).Next()
+func (s *entity) Next(st state.State) (v reflect.Value, err error) {
+	return state.AsValues(st).Next(), nil
 }
 
 func (s *entity) GetIOs() configs.IOs {

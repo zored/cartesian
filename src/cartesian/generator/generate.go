@@ -5,10 +5,17 @@ import (
 	"github.com/zored/cartesian/src/cartesian/configs"
 )
 
-func Generate(ctx *configs.Context, g Generator) (r abstract.ReflectValues) {
-	s := g.State(ctx)
-	for !g.Done(s) {
-		r = append(r, g.Next(s))
+func Generate(ctx configs.Context, g Generator) (r abstract.ReflectValues, err error) {
+	s, err := g.State(ctx)
+	if err != nil {
+		return nil, err
 	}
-	return r
+	for !g.Done(s) {
+		next, err := g.Next(s)
+		if err != nil {
+			return nil, err
+		}
+		r = append(r, next)
+	}
+	return r, err
 }

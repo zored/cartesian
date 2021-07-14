@@ -20,7 +20,8 @@ func NewFieldValue(field configs.Field, v abstract.ValuePtr) *Value {
 	return &Value{field: field, value: v}
 }
 
-func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
+func (v Values) Apply(ctx configs.Context, valueOfEntityPtr reflect.Value) error {
+	var err error
 	valueOfEntity := valueOfEntityPtr.Elem()
 	typeOfEntity := valueOfEntity.Type()
 	fieldIndices := map[string]int{}
@@ -28,6 +29,7 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 		fieldIndices[typeOfEntity.Field(i).Name] = i
 	}
 	for _, fieldValue := range v {
+		ctx = ctx.WithField(fieldValue.field)
 		fieldName := fieldValue.field.GetName()
 		fieldI, ok := fieldIndices[fieldName]
 		if !ok {
@@ -39,8 +41,20 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 		switch v := (*fieldValue.value).(type) {
 		case reflect.Value:
 			valueOfFieldValue = v
+		case configs.LazyValue:
+			valueOfFieldValue, err = v.LazyCreate(ctx)
+			if err != nil {
+				return err
+			}
 		default:
 			valueOfFieldValue = reflect.ValueOf(v)
+		}
+		i := valueOfFieldValue.Interface()
+		if lazy, ok := i.(configs.LazyValue); ok {
+			valueOfFieldValue, err = lazy.LazyCreate(ctx)
+			if err != nil {
+				return err
+			}
 		}
 
 		if !field.CanSet() {
@@ -48,6 +62,7 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 		}
 
 		typeOfField := field.Type()
+
 		if valueOfFieldValue.Type().AssignableTo(reflect.TypeOf((abstract.Values)(nil))) {
 			switch typeOfField.Kind() {
 			case reflect.Slice:
@@ -80,6 +95,7 @@ func (v Values) Apply(valueOfEntityPtr reflect.Value) error {
 				typeOfField,
 			)
 		}
+		ctx = ctx.WithFieldValuePointer(valueOfFieldValue.Interface())
 		field.Set(valueOfFieldValue)
 	}
 	return nil

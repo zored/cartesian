@@ -8,8 +8,8 @@ import (
 
 type (
 	Generator interface {
-		State(*configs.Context) state.State
-		Next(st state.State) reflect.Value
+		State(configs.Context) (r state.State, err error)
+		Next(st state.State) (reflect.Value, error)
 		Done(st state.State) bool
 		GetIOs() configs.IOs
 	}

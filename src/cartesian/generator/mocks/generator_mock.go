@@ -6,7 +6,7 @@ package mock_generator
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	config "github.com/zored/cartesian/src/cartesian/configs"
+	configs "github.com/zored/cartesian/src/cartesian/configs"
 	state "github.com/zored/cartesian/src/cartesian/generator/state"
 	reflect "reflect"
 )
@@ -35,11 +35,12 @@ func (m *MockGenerator) EXPECT() *MockGeneratorMockRecorder {
 }
 
 // State mocks base method
-func (m *MockGenerator) State(arg0 *config.Context) state.State {
+func (m *MockGenerator) State(arg0 configs.Context) (state.State, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "State", arg0)
 	ret0, _ := ret[0].(state.State)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // State indicates an expected call of State
@@ -49,11 +50,12 @@ func (mr *MockGeneratorMockRecorder) State(arg0 interface{}) *gomock.Call {
 }
 
 // Next mocks base method
-func (m *MockGenerator) Next(st state.State) reflect.Value {
+func (m *MockGenerator) Next(st state.State) (reflect.Value, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Next", st)
 	ret0, _ := ret[0].(reflect.Value)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Next indicates an expected call of Next
@@ -77,10 +79,10 @@ func (mr *MockGeneratorMockRecorder) Done(st interface{}) *gomock.Call {
 }
 
 // GetIOs mocks base method
-func (m *MockGenerator) GetIOs() config.IOs {
+func (m *MockGenerator) GetIOs() configs.IOs {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIOs")
-	ret0, _ := ret[0].(config.IOs)
+	ret0, _ := ret[0].(configs.IOs)
 	return ret0
 }
 

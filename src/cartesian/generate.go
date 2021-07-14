@@ -7,60 +7,64 @@ import (
 	"reflect"
 )
 
-func Generate(c *configs.Config) (r abstract.Entities, err error) {
+func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Entities, error) {
 	ios := c.Flatten(true)
-	ctx := &configs.Context{}
+	ctx := configs.NewContext()
+	for _, c := range ctxs {
+		ctx = c
+	}
+	factories := configs.TemplateFactories{}
 	for _, io := range ios {
-		config := io.GetInput()
-		entities := io.GetOutput()
-		for _, values := range getValuesByEntity(ctx, config.Fields) {
-			entity, err := createEntity(config.EntityTemplate, values)
-			if err != nil {
-				return nil, err
-			}
-			entities = append(entities, entity)
-		}
-		io.SetOutput(entities)
-
-		//prevIo := ctx.GetLastCompleteIO()
-
-		ctx.AddCompleteIO(io)
-		if config.PutIO != nil {
-			config.PutIO(io)
-		}
-
-		//if prevIo == nil {
-		//	continue
-		//}
-		//
-		//fs := prevIo.GetInput().Fields
-		//for i := 0; i < fs.Len(); i++ {
-		//	var parent abstract.Value
-		//	field := fs.Index(i)
-		//	fields.NewFieldValue(field, abstract.ValueAddr(field.GetParentValue(parent)))
-		//}
+		io := io
+		factories = factories.Prepend(configs.NewTemplateFactory(
+			io,
+			// todo move out logic
+			func(ctx configs.Context, config *configs.Config) (r abstract.Entities, err error) {
+				ctx = ctx.WithConfig(config)
+				byEntity, err := getValuesByEntity(ctx, config.Fields)
+				if err != nil {
+					return nil, err
+				}
+				for _, values := range byEntity {
+					entity, err := createEntity(ctx, config.EntityTemplate, values)
+					if err != nil {
+						return nil, err
+					}
+					r = append(r, entity)
+				}
+				if config.PutEntities != nil {
+					config.PutEntities(ctx, r)
+				}
+				return r, nil
+			},
+		))
+		factories = append(configs.TemplateFactories{}, factories...)
 	}
-	if l := ios.Last(); l != nil {
-		r = l.GetOutput()
-	}
-	return
+	ctx = ctx.WithFactories(factories)
+	return factories.First().Create(ctx)
 }
 
-func createEntity(tmpl configs.EntityTemplate, values fields.Values) (abstract.Entity, error) {
+func createEntity(ctx configs.Context, tmpl configs.EntityTemplate, values fields.Values) (abstract.Entity, error) {
 	entity := reflect.New(reflect.TypeOf(tmpl).Elem())
-	if err := values.Apply(entity); err != nil {
+	r := abstract.Entity(entity.Interface())
+	ctx = ctx.WithEntity(r)
+	if err := values.Apply(ctx, entity); err != nil {
 		return nil, err
 	}
-	return entity.Interface(), nil
+	return r, nil
 }
 
-func getValuesByEntity(ctx *configs.Context, fieldList configs.Fields) (r fields.ValuesByEntity) {
+func getValuesByEntity(ctx configs.Context, fieldList configs.Fields) (r fields.ValuesByEntity, err error) {
 	type intByFieldIndex map[int]int
 
 	valuesByFieldIndex := map[int]abstract.Values{}
 	lens := intByFieldIndex{}
 	valueIndices := intByFieldIndex{}
-	for i, v := range fieldList.CreateEntityValues(ctx) {
+	values, err := fieldList.CreateEntityValues(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for i, v := range values {
 		valuesByFieldIndex[i] = v
 		lens[i] = len(v)
 		valueIndices[i] = 0
@@ -85,7 +89,7 @@ func getValuesByEntity(ctx *configs.Context, fieldList configs.Fields) (r fields
 				break
 			}
 			if fieldI == lastFieldI {
-				return r
+				return r, err
 			}
 			valueIndices[fieldI] = 0
 		}

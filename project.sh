@@ -2,6 +2,9 @@
 set -ex
 
 case $1 in
+  test) #
+    go test ./... -race
+    ;;
   lint) #
     golangci-lint run
     ;;
@@ -11,7 +14,7 @@ case $1 in
   cover) #
     go test ./... -coverprofile=cover.out
     ;;
-  mocks) #
+  mock*) #
     # Remove:
     find . -name '*_mock.go' \
     | while read -r v; do
@@ -21,11 +24,16 @@ case $1 in
     # Create:
     grep -rl interface src \
     | grep -v '_mock.go' \
+    | grep -v '_test.go' \
     | while read -r v; do
       dir="$(dirname "$v")"
       file="$(basename "$v")"
       file="$(echo "$file" | sed 's/...$//')_mock.go"
-      mockgen -source "$v" -destination "$dir/mocks/$file";
+      out="$dir/mocks/$file"
+      mockgen -source "$v" -destination "$out";
+      if [ "$(wc -l "$out" | awk '{print $1}')" = 9 ]; then
+        rm "$out"
+      fi
     done
     ;;
   *)

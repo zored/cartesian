@@ -63,8 +63,8 @@ func ExampleGenerate_casino() {
 		croupierConfig = &configs.Config{
 			EntityTemplate: (*entities.Croupier)(nil),
 			Fields:         croupierFields,
-			PutIO: func(io configs.IO) {
-				io.GetOutput().Each(func(e abstract.Entity) {
+			PutEntities: func(_ configs.Context, es abstract.Entities) {
+				for _, e := range es {
 					c := e.(*entities.Croupier)
 					if c.Id > 0 {
 						return
@@ -72,7 +72,7 @@ func ExampleGenerate_casino() {
 					lastCroupierId++
 					c.Id = lastCroupierId
 					croupiers = append(croupiers, c)
-				})
+				}
 			},
 		}
 		casinoFields = fields.NewFields(
@@ -94,15 +94,15 @@ func ExampleGenerate_casino() {
 		casinoConfig = &configs.Config{
 			EntityTemplate: (*entities.Casino)(nil),
 			Fields:         casinoFields,
-			PutIO: func(io configs.IO) {
-				io.GetOutput().Each(func(e abstract.Entity) {
+			PutEntities: func(_ configs.Context, vs abstract.Entities) {
+				for _, e := range vs {
 					c := e.(*entities.Casino)
 					if c.Id > 0 {
 						return
 					}
 					lastCasinoId++
 					c.Id = lastCasinoId
-				})
+				}
 			},
 		}
 	)

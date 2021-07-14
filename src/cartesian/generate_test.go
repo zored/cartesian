@@ -1,11 +1,13 @@
 package cartesian
 
 import (
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/zored/cartesian/src/cartesian/abstract"
 	"github.com/zored/cartesian/src/cartesian/configs"
 	"github.com/zored/cartesian/src/cartesian/fields"
 	"github.com/zored/cartesian/src/cartesian/generator"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
@@ -18,6 +20,7 @@ type (
 		Other      *Other
 	}
 	Other struct {
+		Id        int
 		Bool      bool
 		ForeignId int
 	}
@@ -32,6 +35,8 @@ func TestGenerate(t *testing.T) {
 	funcResults := generator.FuncResults{{Value: false}, {Value: true}, {Done: true}}
 	funcResultsI := -1
 	nextForeignId := 0
+	nextOtherId := 0
+	ctx := configs.NewContext()
 	entities, err := Generate(&configs.Config{
 		EntityTemplate: (*Root)(nil),
 		Fields: fields.NewFields(
@@ -57,37 +62,55 @@ func TestGenerate(t *testing.T) {
 						Fields: fields.NewFields(
 							fields.NewGenerated("UInt", generator.NewList(uint(1))),
 						),
-						PutIO: func(io configs.IO) {
-							io.GetOutput().Each(func(v abstract.Entity) {
+						PutEntities: func(_ configs.Context, entities abstract.Entities) {
+							for _, v := range entities {
 								f := v.(*Foreign)
 								is.Equal(0, f.Id)
 								nextForeignId++
 								f.Id = nextForeignId
-							})
+							}
 						},
 					}), func(v reflect.Value) reflect.Value {
 						return reflect.ValueOf(v.Interface().(*Foreign).Id)
 					})),
 				),
-				PutIO: func(io configs.IO) {
+				PutEntities: func(ctx configs.Context, entities abstract.Entities) {
+					for _, v := range entities {
+						f := v.(*Other)
+						is.Equal(0, f.Id)
+						nextOtherId++
+						f.Id = nextOtherId
+					}
 					is.Equal(abstract.Entities{
-						&Other{ForeignId: 1, Bool: false},
-						&Other{ForeignId: 1, Bool: true},
-					}, io.GetOutput())
+						&Other{Id: 1, ForeignId: 1, Bool: false},
+						&Other{Id: 2, ForeignId: 1, Bool: true},
+					}, entities)
 				},
 			})),
 		),
-	})
+	}, ctx)
 	is.NoError(err)
 	l := []string{"c_", "d_"}
 	is.Equal(entities, abstract.Entities{
-		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "b", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "b", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "a", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "a", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "b", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "b", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "a", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "a", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "b", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "b", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "a", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "a", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "b", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "b", Int: 2},
 	})
+
+	v := 0
+	ctx.EachFactory(func(*configs.TemplateFactory) bool {
+		v++
+		return false
+	})
+	is.Equal(3, v)
+
+	marshal, err := json.Marshal(ctx)
+	is.NoError(err)
+	err = ioutil.WriteFile("ctx.json", marshal, 0777)
+	is.NoError(err)
 }

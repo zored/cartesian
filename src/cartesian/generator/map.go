@@ -20,6 +20,10 @@ func NewMap(g Generator, f mapValue) Generator {
 	}
 }
 
-func (f *mapper) Next(st state.State) reflect.Value {
-	return f.mapValue(f.Generator.Next(st))
+func (f *mapper) Next(st state.State) (reflect.Value, error) {
+	next, err := f.Generator.Next(st)
+	if err != nil {
+		return reflect.Value{}, err
+	}
+	return f.mapValue(next), nil
 }

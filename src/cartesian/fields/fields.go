@@ -20,11 +20,15 @@ func (f Fields) Index(i int) configs.Field {
 func NewFields(fields ...*Field) Fields {
 	return fields
 }
-func (f Fields) CreateEntityValues(ctx *configs.Context) (r abstract.EntityValues) {
+func (f Fields) CreateEntityValues(ctx configs.Context) (r abstract.EntityValues, err error) {
 	for _, t := range f {
-		r = append(r, t.CreateValues(ctx))
+		values, err := t.CreateValues(ctx)
+		if err != nil {
+			return nil, err
+		}
+		r = append(r, values)
 	}
-	return r
+	return r, err
 }
 
 func (f Fields) GetIOs() configs.IOs {

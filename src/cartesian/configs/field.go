@@ -5,12 +5,12 @@ import "github.com/zored/cartesian/src/cartesian/abstract"
 type (
 	Fields interface {
 		GetIOs() IOs
-		CreateEntityValues(*Context) abstract.EntityValues
+		CreateEntityValues(Context) (r abstract.EntityValues, err error)
 		Len() int
 		Index(i int) Field
 	}
 	Field interface {
-		CreateValues(io *Context) abstract.Values
+		CreateValues(io Context) (r abstract.Values, err error)
 		GetName() string
 		GetParentValue(abstract.Value) abstract.Value
 	}

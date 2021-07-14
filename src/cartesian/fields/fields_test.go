@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/zored/cartesian/src/cartesian/abstract"
 	"github.com/zored/cartesian/src/cartesian/configs"
-	mock_config "github.com/zored/cartesian/src/cartesian/configs/mocks"
+	mockConfig "github.com/zored/cartesian/src/cartesian/configs/mocks"
 	mock_generator "github.com/zored/cartesian/src/cartesian/generator/mocks"
 	"reflect"
 	"testing"
@@ -25,8 +25,8 @@ func TestFields(t *testing.T) {
 	is.Nil(fields.Index(+2))
 	is.Equal(field1, fields.Index(0))
 	is.Equal(field2, fields.Index(1))
-	io1 := mock_config.NewMockIO(ctrl)
-	io2 := mock_config.NewMockIO(ctrl)
+	io1 := mockConfig.NewMockIO(ctrl)
+	io2 := mockConfig.NewMockIO(ctrl)
 	ios1 := configs.IOs{io1}
 	ios2 := configs.IOs{io2}
 	generator1.EXPECT().GetIOs().Return(ios1)
@@ -35,16 +35,18 @@ func TestFields(t *testing.T) {
 	ctx := configs.NewContext()
 	mockGenerator(generator1, ctx, 1)
 	mockGenerator(generator2, ctx, 2)
+	values, err := fields.CreateEntityValues(ctx)
+	is.NoError(err)
 	is.Equal(
 		abstract.EntityValues{{reflect.ValueOf(1)}, {reflect.ValueOf(2)}},
-		fields.CreateEntityValues(ctx),
+		values,
 	)
 }
 
-func mockGenerator(generator *mock_generator.MockGenerator, ctx *configs.Context, value interface{}) {
+func mockGenerator(generator *mock_generator.MockGenerator, ctx configs.Context, value interface{}) {
 	state := "any"
-	generator.EXPECT().State(ctx).Return(state)
+	generator.EXPECT().State(ctx).Return(state, nil)
 	generator.EXPECT().Done(state).Return(false)
-	generator.EXPECT().Next(state).Return(reflect.ValueOf(value))
+	generator.EXPECT().Next(state).Return(reflect.ValueOf(value), nil)
 	generator.EXPECT().Done(state).Return(true)
 }
