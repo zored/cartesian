@@ -7,6 +7,17 @@ import (
 	"reflect"
 )
 
+func GenerateSimple(
+	template configs.EntityTemplate,
+	fields configs.Fields,
+	ctxs ...configs.Context,
+) (abstract.Entities, error) {
+	return Generate(&configs.Config{
+		EntityTemplate: template,
+		Fields:         fields,
+	}, ctxs...)
+}
+
 func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Entities, error) {
 	ios := c.Flatten(true)
 	ctx := configs.NewContext()

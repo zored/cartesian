@@ -11,8 +11,8 @@ type list struct {
 	l abstract.Values
 }
 
-func NewList(l ...abstract.Value) *list {
-	return &list{l: abstract.ToValues(l)}
+func NewList(l ...interface{}) *list {
+	return &list{l: l}
 }
 
 func (s *list) State(configs.Context) (state.State, error) {

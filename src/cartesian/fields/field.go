@@ -19,6 +19,10 @@ func NewGenerated(name string, generator generator.Generator) *Field {
 	return &Field{Name: name, Generator: generator}
 }
 
+func NewList(name string, values ...interface{}) *Field {
+	return NewGenerated(name, generator.NewList(values...))
+}
+
 func (f *Field) GetName() string {
 	return f.Name
 }
