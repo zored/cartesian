@@ -32,7 +32,7 @@ func TestFields(t *testing.T) {
 	generator1.EXPECT().GetIOs().Return(ios1)
 	generator2.EXPECT().GetIOs().Return(ios2)
 	is.Equal(configs.IOs{io1, io2}, fields.GetIOs())
-	ctx := configs.NewContext()
+	ctx := configs.NewContext().WithConfig(&configs.Config{Name: "n"})
 	mockGenerator(generator1, ctx, 1)
 	mockGenerator(generator2, ctx, 2)
 	values, err := fields.CreateEntityValues(ctx)
@@ -45,7 +45,7 @@ func TestFields(t *testing.T) {
 
 func mockGenerator(generator *mock_generator.MockGenerator, ctx configs.Context, value interface{}) {
 	state := "any"
-	generator.EXPECT().State(ctx).Return(state, nil)
+	generator.EXPECT().State(gomock.Any()).Return(state, nil)
 	generator.EXPECT().Done(state).Return(false)
 	generator.EXPECT().Next(state).Return(reflect.ValueOf(value), nil)
 	generator.EXPECT().Done(state).Return(true)
