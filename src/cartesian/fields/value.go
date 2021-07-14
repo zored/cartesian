@@ -87,10 +87,15 @@ func (v Values) Apply(ctx configs.Context, valueOfEntityPtr reflect.Value) error
 				)
 			}
 		}
+
+		if t := valueOfFieldValue.Type(); t.ConvertibleTo(typeOfField) {
+			valueOfFieldValue = valueOfFieldValue.Convert(typeOfField)
+		}
+
 		if t := valueOfFieldValue.Type(); !typeOfField.AssignableTo(t) {
 			return fmt.Errorf(
 				`"%s" is not assignable to to %s (type "%s")`,
-				t.Name(),
+				t.String(),
 				prettyFieldName(typeOfEntity, fieldName),
 				typeOfField,
 			)
@@ -102,5 +107,5 @@ func (v Values) Apply(ctx configs.Context, valueOfEntityPtr reflect.Value) error
 }
 
 func prettyFieldName(typeOfEntity reflect.Type, fieldName string) string {
-	return fmt.Sprintf(`"%s.%s"`, typeOfEntity.Name(), fieldName)
+	return fmt.Sprintf(`"(%s).%s"`, typeOfEntity.String(), fieldName)
 }

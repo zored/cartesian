@@ -42,7 +42,7 @@ func TestGenerate(t *testing.T) {
 			fields.NewGenerated("Int", generator.NewList(1, 2)),
 			fields.NewGenerated("String", generator.NewList("a", "b")),
 			fields.NewGenerated("StringList", generator.NewGroup(
-				generator.NewMap(
+				generator.NewMapReflect(
 					generator.NewList("c", "d"),
 					func(v reflect.Value) reflect.Value {
 						return reflect.ValueOf(v.Interface().(string) + "_")
@@ -56,7 +56,7 @@ func TestGenerate(t *testing.T) {
 						funcResultsI++
 						return funcResults[funcResultsI]
 					})),
-					fields.NewGenerated("ForeignId", generator.NewMap(generator.NewEntitySingle(&configs.Config{
+					fields.NewGenerated("ForeignId", generator.NewMapReflect(generator.NewEntitySingle(&configs.Config{
 						EntityTemplate: (*Foreign)(nil),
 						Fields: fields.NewFields(
 							fields.NewGenerated("UInt", generator.NewList(uint(1))),

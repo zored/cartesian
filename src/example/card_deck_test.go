@@ -82,7 +82,7 @@ func ExampleGenerate_casino() {
 			),
 			fields.NewGenerated(
 				"CroupierIds",
-				generator.NewGroup(generator.NewMap(
+				generator.NewGroup(generator.NewMapReflect(
 					generator.NewEntitySingle(croupierConfig),
 					func(v reflect.Value) reflect.Value {
 						return reflect.ValueOf(v.Interface().(*entities.Croupier).Id)

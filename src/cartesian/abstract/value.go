@@ -13,6 +13,13 @@ type (
 	ValuesV       []Value
 )
 
+func SliceToValues(v interface{}) (r Values) {
+	valueOfV := reflect.ValueOf(v)
+	for i := 0; i < valueOfV.Len(); i++ {
+		r = append(r, Value(valueOfV.Index(i).Interface()))
+	}
+	return r
+}
 func ToValues(v []Value) (r Values) {
 	for _, o := range v {
 		r = append(r, o)

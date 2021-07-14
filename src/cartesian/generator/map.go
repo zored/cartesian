@@ -13,7 +13,13 @@ type (
 	mapValue func(reflect.Value) reflect.Value
 )
 
-func NewMap(g Generator, f mapValue) Generator {
+func NewMap(g Generator, f func(interface{}) interface{}) Generator {
+	return NewMapReflect(g, func(r reflect.Value) reflect.Value {
+		return reflect.ValueOf(f(r.Interface()))
+	})
+}
+
+func NewMapReflect(g Generator, f mapValue) Generator {
 	return &mapper{
 		Generator: g,
 		mapValue:  f,

@@ -19,6 +19,10 @@ func NewGenerated(name string, generator generator.Generator) *Field {
 	return &Field{Name: name, Generator: generator}
 }
 
+func NewSlice(name string, slice interface{}) *Field {
+	return NewGenerated(name, generator.NewList(abstract.SliceToValues(slice)...))
+}
+
 func NewList(name string, values ...interface{}) *Field {
 	return NewGenerated(name, generator.NewList(values...))
 }
