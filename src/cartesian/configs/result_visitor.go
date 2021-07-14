@@ -18,7 +18,7 @@ func NewResultVisitor() (*ResultVisitor, LocalResult) {
 	return &ResultVisitor{Entities: r}, LocalResult{entities: r}
 }
 
-func (c *ResultVisitor) SetConfig(config *Config, l *LocalResult) {
+func (l *LocalResult) SetConfig(config *Config) {
 	config.FillName()
 	l.entity = &ResultEntity{
 		Config: config,
@@ -28,15 +28,15 @@ func (c *ResultVisitor) SetConfig(config *Config, l *LocalResult) {
 	*l.entities = append(*l.entities, l.entity)
 }
 
-func (c *ResultVisitor) SetEntity(v abstract.Entity, l *LocalResult) {
+func (l *LocalResult) SetEntity(v abstract.Entity) {
 	if l.entity.valueSet {
-		c.SetConfig(l.entity.Config, l)
+		l.SetConfig(l.entity.Config)
 	}
 	l.entity.valueSet = true
 	l.entity.Value = v
 }
 
-func (c *ResultVisitor) SetField(field Field, l *LocalResult) {
+func (l *LocalResult) SetField(field Field) {
 	l.entities = &ResultEntities{}
 	l.field = &ResultField{
 		Value:    nil,
@@ -46,9 +46,9 @@ func (c *ResultVisitor) SetField(field Field, l *LocalResult) {
 	*l.entity.Fields = append(*l.entity.Fields, l.field)
 }
 
-func (c *ResultVisitor) SetFieldValuePointer(valuePtr interface{}, l *LocalResult) {
+func (l *LocalResult) SetFieldValuePointer(valuePtr interface{}) {
 	if l.field.valueSet {
-		c.SetField(l.field.Config, l)
+		l.SetField(l.field.Config)
 	}
 	l.field.valueSet = true
 	l.field.Value = valuePtr

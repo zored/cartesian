@@ -35,7 +35,6 @@ func TestGenerate(t *testing.T) {
 	funcResults := generator.FuncResults{{Value: false}, {Value: true}, {Done: true}}
 	funcResultsI := -1
 	nextForeignId := 0
-	nextOtherId := 0
 	ctx := configs.NewContext()
 	entities, err := Generate(&configs.Config{
 		EntityTemplate: (*Root)(nil),
@@ -75,15 +74,9 @@ func TestGenerate(t *testing.T) {
 					})),
 				),
 				PutEntities: func(ctx configs.Context, entities abstract.Entities) {
-					for _, v := range entities {
-						f := v.(*Other)
-						is.Equal(0, f.Id)
-						nextOtherId++
-						f.Id = nextOtherId
-					}
 					is.Equal(abstract.Entities{
-						&Other{Id: 1, ForeignId: 1, Bool: false},
-						&Other{Id: 2, ForeignId: 1, Bool: true},
+						&Other{ForeignId: 1, Bool: false},
+						&Other{ForeignId: 1, Bool: true},
 					}, entities)
 				},
 			})),
@@ -92,14 +85,14 @@ func TestGenerate(t *testing.T) {
 	is.NoError(err)
 	l := []string{"c_", "d_"}
 	is.Equal(entities, abstract.Entities{
-		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "a", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "a", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "b", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Id: 1, Bool: false}, StringList: l, String: "b", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "a", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "a", Int: 2},
-		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "b", Int: 1},
-		&Root{Other: &Other{ForeignId: 1, Id: 2, Bool: true}, StringList: l, String: "b", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "b", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "b", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "a", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "a", Int: 2},
+		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "b", Int: 1},
+		&Root{Other: &Other{ForeignId: 1, Bool: true}, StringList: l, String: "b", Int: 2},
 	})
 
 	v := 0
@@ -108,6 +101,13 @@ func TestGenerate(t *testing.T) {
 		return false
 	})
 	is.Equal(3, v)
+	is.Equal(
+		(*(*(*(*(*ctx.AllResults.Entities)[0].Fields)[3].Entities)[0].Fields)[1].Entities)[0].Value,
+		&Foreign{
+			Id:   1,
+			UInt: 1,
+		},
+	)
 
 	marshal, err := json.Marshal(ctx)
 	is.NoError(err)

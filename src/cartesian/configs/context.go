@@ -46,21 +46,21 @@ func (c Context) WithFactories(factories TemplateFactories) Context {
 }
 
 func (c Context) WithConfig(config *Config) Context {
-	c.AllResults.SetConfig(config, &c.LocalResult)
+	(&c.LocalResult).SetConfig(config)
 	return c
 }
 
 func (c Context) WithEntity(v abstract.Entity) Context {
-	c.AllResults.SetEntity(v, &c.LocalResult)
+	(&c.LocalResult).SetEntity(v)
 	return c
 }
 
 func (c Context) WithField(v Field) Context {
-	c.AllResults.SetField(v, &c.LocalResult)
+	(&c.LocalResult).SetField(v)
 	return c
 }
 
 func (c Context) WithFieldValuePointer(v interface{}) Context {
-	c.AllResults.SetFieldValuePointer(v, &c.LocalResult)
+	(&c.LocalResult).SetFieldValuePointer(v)
 	return c
 }

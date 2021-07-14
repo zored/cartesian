@@ -31,7 +31,7 @@ func (f *Field) CreateValues(ctx configs.Context) (r abstract.Values, err error)
 	if f.InitialValue != nil {
 		panic("you must fill either field Generator or InitialValue but not both")
 	}
-	reflectValues, err := generator.Generate(ctx, f.Generator)
+	reflectValues, err := generator.Generate(ctx.WithField(f), f.Generator)
 	if err != nil {
 		return nil, err
 	}
