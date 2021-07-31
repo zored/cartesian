@@ -61,7 +61,7 @@ func TestGenerate(t *testing.T) {
 						Fields: fields.NewFields(
 							fields.NewGenerated("UInt", generator.NewList(uint(1))),
 						),
-						PutEntities: func(_ configs.Context, entities abstract.Entities) {
+						PutEntities: func(_ configs.Context, entities abstract.Instances) {
 							for _, v := range entities {
 								f := v.(*Foreign)
 								is.Equal(0, f.Id)
@@ -73,8 +73,8 @@ func TestGenerate(t *testing.T) {
 						return reflect.ValueOf(v.Interface().(*Foreign).Id)
 					})),
 				),
-				PutEntities: func(ctx configs.Context, entities abstract.Entities) {
-					is.Equal(abstract.Entities{
+				PutEntities: func(ctx configs.Context, entities abstract.Instances) {
+					is.Equal(abstract.Instances{
 						&Other{ForeignId: 1, Bool: false},
 						&Other{ForeignId: 1, Bool: true},
 					}, entities)
@@ -84,7 +84,7 @@ func TestGenerate(t *testing.T) {
 	}, ctx)
 	is.NoError(err)
 	l := []string{"c_", "d_"}
-	is.Equal(entities, abstract.Entities{
+	is.Equal(entities, abstract.Instances{
 		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 1},
 		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "a", Int: 2},
 		&Root{Other: &Other{ForeignId: 1, Bool: false}, StringList: l, String: "b", Int: 1},

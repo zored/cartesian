@@ -16,7 +16,7 @@ type (
 		Factories  *TemplateFactories
 		AllResults *ResultVisitor
 	}
-	PutEntities func(ctx Context, entities abstract.Entities)
+	PutEntities func(ctx Context, entities abstract.Instances)
 )
 
 func NewContext() Context {
@@ -50,7 +50,7 @@ func (c Context) WithConfig(config *Config) Context {
 	return c
 }
 
-func (c Context) WithEntity(v abstract.Entity) Context {
+func (c Context) WithEntity(v abstract.Instance) Context {
 	(&c.LocalResult).SetEntity(v)
 	return c
 }

@@ -14,7 +14,7 @@ type (
 	SimpleIO struct {
 		EntityTemplateName string
 		Input              *Config
-		Output             abstract.Entities
+		Output             abstract.Instances
 		ParentIO           IO
 	}
 )
@@ -30,7 +30,7 @@ func (s *SimpleIO) GetInput() *Config {
 	return s.Input
 }
 
-func (s *SimpleIO) GetOutput() abstract.Entities {
+func (s *SimpleIO) GetOutput() abstract.Instances {
 	return s.Output
 }
 

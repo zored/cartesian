@@ -27,7 +27,7 @@ func ExampleGenerate_deck() {
 	deck := entities.Deck{}
 	r, err := Generate(cardConfig)
 	panicOnErr(err)
-	r.Each(func(v abstract.Entity) {
+	r.Each(func(v abstract.Instance) {
 		deck = append(deck, v.(*entities.Card))
 	})
 	fmt.Printf("%v", deck)
@@ -49,7 +49,7 @@ func ExampleGenerate_croupier() {
 	croupiers := entities.Croupiers{}
 	r, err := Generate(croupierConfig)
 	panicOnErr(err)
-	r.Each(func(v abstract.Entity) {
+	r.Each(func(v abstract.Instance) {
 		croupiers = append(croupiers, v.(*entities.Croupier))
 	})
 	fmt.Printf("%v", croupiers)
@@ -63,7 +63,7 @@ func ExampleGenerate_casino() {
 		croupierConfig = &configs.Config{
 			EntityTemplate: (*entities.Croupier)(nil),
 			Fields:         croupierFields,
-			PutEntities: func(_ configs.Context, es abstract.Entities) {
+			PutEntities: func(_ configs.Context, es abstract.Instances) {
 				for _, e := range es {
 					c := e.(*entities.Croupier)
 					if c.Id > 0 {
@@ -94,7 +94,7 @@ func ExampleGenerate_casino() {
 		casinoConfig = &configs.Config{
 			EntityTemplate: (*entities.Casino)(nil),
 			Fields:         casinoFields,
-			PutEntities: func(_ configs.Context, vs abstract.Entities) {
+			PutEntities: func(_ configs.Context, vs abstract.Instances) {
 				for _, e := range vs {
 					c := e.(*entities.Casino)
 					if c.Id > 0 {
@@ -109,7 +109,7 @@ func ExampleGenerate_casino() {
 	casinos := []*entities.Casino{}
 	r, err := Generate(casinoConfig)
 	panicOnErr(err)
-	r.Each(func(v abstract.Entity) {
+	r.Each(func(v abstract.Instance) {
 		casinos = append(casinos, v.(*entities.Casino))
 	})
 	fmt.Printf("%v, %s", casinos, croupiers.ShortString())

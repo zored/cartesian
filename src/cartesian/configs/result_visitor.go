@@ -28,7 +28,7 @@ func (l *LocalResult) SetConfig(config *Config) {
 	*l.entities = append(*l.entities, l.entity)
 }
 
-func (l *LocalResult) SetEntity(v abstract.Entity) {
+func (l *LocalResult) SetEntity(v abstract.Instance) {
 	if l.entity.valueSet {
 		l.SetConfig(l.entity.Config)
 	}

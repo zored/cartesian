@@ -11,14 +11,14 @@ func GenerateSimple(
 	template configs.EntityTemplate,
 	fields configs.Fields,
 	ctxs ...configs.Context,
-) (abstract.Entities, error) {
+) (abstract.Instances, error) {
 	return Generate(&configs.Config{
 		EntityTemplate: template,
 		Fields:         fields,
 	}, ctxs...)
 }
 
-func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Entities, error) {
+func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Instances, error) {
 	ios := c.Flatten(true)
 	ctx := configs.NewContext()
 	for _, c := range ctxs {
@@ -30,7 +30,7 @@ func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Entities, er
 		factories = factories.Prepend(configs.NewTemplateFactory(
 			io,
 			// todo move out logic
-			func(ctx configs.Context, config *configs.Config) (r abstract.Entities, err error) {
+			func(ctx configs.Context, config *configs.Config) (r abstract.Instances, err error) {
 				ctx = ctx.WithConfig(config)
 				byEntity, err := getValuesByEntity(ctx, config.Fields)
 				if err != nil {
@@ -55,9 +55,9 @@ func Generate(c *configs.Config, ctxs ...configs.Context) (abstract.Entities, er
 	return factories.First().Create(ctx)
 }
 
-func createEntity(ctx configs.Context, tmpl configs.EntityTemplate, values fields.Values) (abstract.Entity, error) {
+func createEntity(ctx configs.Context, tmpl configs.EntityTemplate, values fields.Values) (abstract.Instance, error) {
 	entity := reflect.New(reflect.TypeOf(tmpl).Elem())
-	r := abstract.Entity(entity.Interface())
+	r := abstract.Instance(entity.Interface())
 	ctx = ctx.WithEntity(r)
 	if err := values.Apply(ctx, entity); err != nil {
 		return nil, err

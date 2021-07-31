@@ -6,7 +6,7 @@ import (
 
 type (
 	ResultEntity struct {
-		Value    abstract.Entity
+		Value    abstract.Instance
 		Config   *Config
 		Fields   *ResultFields
 		valueSet bool

@@ -7,7 +7,10 @@ type (
 		IO     IO
 		create TemplateFactoryF
 	}
-	TemplateFactoryF  func(Context, *Config) (abstract.Entities, error)
+	ITemplateFactory interface {
+		Create(ctx Context) (abstract.Instances, error)
+	}
+	TemplateFactoryF  func(Context, *Config) (abstract.Instances, error)
 	TemplateFactories []*TemplateFactory
 )
 
@@ -26,7 +29,7 @@ func NewTemplateFactory(io IO, create TemplateFactoryF) *TemplateFactory {
 	return &TemplateFactory{IO: io, create: create}
 }
 
-func (f *TemplateFactory) Create(ctx Context) (abstract.Entities, error) {
+func (f *TemplateFactory) Create(ctx Context) (abstract.Instances, error) {
 	if f == nil {
 		return nil, nil
 	}
